@@ -23,7 +23,7 @@ async function uploadToDriveAndAddQR(localPath, contractNumber) {
     const pdfBytes = fs.readFileSync(localPath);
     const pdfDoc = await PDFDocument.load(pdfBytes);
 
-    // Сначала заливаем PDF без QR
+    // Генерация пустого файла в Drive перед вставкой QR
     const driveRes = await drive.files.create({
       requestBody: {
         name: `shartnoma_${contractNumber}.pdf`,
