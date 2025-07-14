@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Talaba kontrakti yaratish</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #eafaf1;
+            padding: 40px;
+        }
+
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cce5cc;
+            border-radius: 6px;
+        }
+
+        button {
+            background: #2ecc71;
+            color: white;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #27ae60;
+        }
+
+        #download-btn {
+            display: none;
+            margin-left: 10px;
+        }
+
+        #contract-amount,
+        #status-msg {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Talaba kontrakti yaratish</h2>
+        <div class="form-group">
+            <label for="operator">Operator</label>
+            <select id="operator">
+                <option value="operator_1">Operator 1</option>
+                <option value="operator_2">Operator 2</option>
+            </select>
+        </div>
+        <div class="form-group"><label>Ism Familiya Sharif</label><input id="name" /></div>
+        <div class="form-group"><label>JSHSHIR</label><input id="jshshir" /></div>
+        <div class="form-group"><label>Sana</label><input id="birthdate" type="date" /></div>
+
+        <div class="form-group">
+            <label>Ta'lim shakli</label>
+            <select id="educationType">
+                <option value="Kunduzgi">Kunduzgi</option>
+                <option value="Kechki">Kechki</option>
+                <option value="Sirtqi">Sirtqi</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Ta'lim yo'nalishi</label>
+            <select id="direction"></select>
+        </div>
+
+        <div class="form-group">
+            <label>Kurs (bosqich)</label>
+            <select id="course">
+                <option value="1">1-kurs</option>
+                <option value="2">2-kurs</option>
+                <option value="3">3-kurs</option>
+            </select>
+        </div>
+
+        <div class="form-group"><label>Manzil</label><input id="address" /></div>
+        <div class="form-group"><label>Pasport ma'lumotlari</label><input id="passport" /></div>
+        <div class="form-group"><label>Telefon raqam</label><input id="phone" /></div>
+
+        <button onclick="startPDFGeneration()">Shartnomani tayyorlash</button>
+        <button id="download-btn">PDF-ni yuklab olish</button>
+
+        <p id="contract-amount"></p>
+        <p id="status-msg" style="color: red;"></p>
+    </div>
+
+<script>
+    const contractPrices = {
+        Kunduzgi: {
+            "Filologiya va tillarni o'qitish: arab tili(Bakalavr)": 15200000,
+            "Filologiya va tillarni o'qitish: ingliz tili(Bakalavr)": 13600000,
+            "Filologiya va tillarni o'qitish: o'zbek tili(Bakalavr)": 13600000,
+            "Filologiya va tillarni o'qitish: rus tili(Bakalavr)": 13600000,
+            "Filologiya va tillarni o'qitish: xitoy tili(Bakalavr)": 13600000,
+            "Filologiya va tillarni o'qitish: koreys tili(Bakalavr)": 13600000,
+            "Filologiya va tillarni o'qitish: turk tili(Bakalavr)": 13600000,
+            "Boshlang'ich ta'lim(Bakalavr)": 15200000,
+            "Turizm va mehmondo'stlik(Bakalavr)": 14400000,
+            "Iqtisodiyot(Bakalavr)": 16000000,
+            "Tarix(Bakalavr)": 14400000,
+            "Maktabgacha ta'lim(Bakalavr)": 12000000,
+            "Jismoniy madaniyat(Bakalavr)": 12000000,
+            "Ona tili va adabiyoti: rus tili(Bakalavr)": 13000000,
+            "Ona tili va adabiyoti(Bakalavr)": 13000000,
+            "Psixologiya(Bakalavr)": 13600000,
+            "Pedagogika(Bakalavr)": 13600000,
+            "Menejment(Bakalavr)": 13600000,
+            "Moliya va moliyaviy texnologiyalar(Bakalavr)": 13600000,
+            "Logistika(Bakalavr)": 13600000,
+            "Buxgalteriya hisobi(Bakalavr)": 13600000,
+            "Bank ishi(Bakalavr)": 13600000,
+            "Dasturiy injiniring(Bakalavr)": 13600000,
+            "Kompyuter injiniring(Bakalavr)": 13600000,
+            "Matematika(Bakalavr)": 13600000,
+            "Maxsus pedagogika: logopediya(Bakalavr)": 13600000,
+            "Menejment(Magistratura)": 20000000,
+            "Memejment: Ta'lim menekmenti(Magistratura)": 20000000,
+            "Lingvistuka: arab tili(Magistratura)": 20000000,
+            "Lingvistuka: inglis tili(Magistratura)": 20000000,
+            "Iqtisodiyot(Magistratura)": 20000000,
+            "Tarix(Magistratura)": 16000000,
+            "Davlat moliyaviy nazorati va auditi(Magistratura)": 20000000,
+            "Raqamli iqtisodiyot(Magistratura)": 20000000,
+            "Dasturiy injiniring(Magistratura)": 20000000,
+            "Kompyuter injiniring(Magistratura)": 20000000,
+            "Sport faoliyati(Magistratura)": 16000000,
+            "Ta'lim va tarbiya nazariyasi va metodikasi (Boshlang'ich ta'lim)(Magistratura)": 16000000,
+            "Psixologiya(Magistratura)": 16000000
+        },
+        Kechki: {
+            "Filologiya va tillarni o'qitish: arab tili(Bakalavr)": 13600000,
+            "Filologiya va tillarni o'qitish: ingliz tili(Bakalavr)": 13600000,
+            "Filologiya va tillarni o'qitish: o'zbek tili(Bakalavr)": 13600000,
+            "Filologiya va tillarni o'qitish: rus tili(Bakalavr)": 13600000,
+            "Filologiya va tillarni o'qitish: xitoy tili(Bakalavr)": 13600000,
+            "Filologiya va tillarni o'qitish: koreys tili(Bakalavr)": 13600000,
+            "Filologiya va tillarni o'qitish: turk tili(Bakalavr)": 13600000,
+            "Boshlang'ich ta'lim(Bakalavr)": 13600000,
+            "Turizm va mehmondo'stlik(Bakalavr)": 12800000,
+            "Iqtisodiyot(Bakalavr)": 14400000,
+            "Tarix(Bakalavr)": 12800000,
+            "Maktabgacha ta'lim(Bakalavr)": 9600000,
+            "Jismoniy madaniyat(Bakalavr)": 9600000,
+            "Ona tili va adabiyoti: rus tili(Bakalavr)": 10400000,
+            "Ona tili va adabiyoti(Bakalavr)": 10400000
+        },
+        Sirtqi: {
+            "Boshlang'ich ta'lim(Bakalavr)": 13600000,
+            "Turizm va mehmondo'stlik(Bakalavr)": 12800000,
+            "Iqtisodiyot(Bakalavr)": 14400000,
+            "Tarix(Bakalavr)": 12800000,
+            "Maktabgacha ta'lim(Bakalavr)": 9600000,
+            "Jismoniy madaniyat(Bakalavr)": 9600000,
+            "Psixologiya(Bakalavr)": 9600000,
+            "Pedagogika(Bakalavr)": 9600000,
+            "Menejment(Bakalavr)": 11200000,
+            "Moliya va moliyaviy texnologiyalar(Bakalavr)": 11200000,
+            "Logistika(Bakalavr)": 9600000,
+            "Buxgalteriya hisobi(Bakalavr)": 11200000,
+            "Bank ishi(Bakalavr)": 11200000,
+            "Dasturiy injiniring(Bakalavr)": 11200000,
+            "Kompyuter injiniring(Bakalavr)": 11200000
+        }
+    };
+
+    function populateDirections() {
+        const type = document.getElementById('educationType').value;
+        const dirSelect = document.getElementById('direction');
+        dirSelect.innerHTML = '';
+        if (contractPrices[type]) {
+            Object.keys(contractPrices[type]).forEach(dir => {
+                const opt = document.createElement('option');
+                opt.value = dir;
+                opt.textContent = dir;
+                dirSelect.appendChild(opt);
+            });
+        }
+        updateAmountDisplay();
+    }
+
+    function updateAmountDisplay() {
+        const type = document.getElementById('educationType').value;
+        const dir = document.getElementById('direction').value;
+        const amount = contractPrices[type]?.[dir];
+        document.getElementById('contract-amount').textContent =
+            amount ? `Kontrakt summasi: ${amount.toLocaleString()} so‘m` : '';
+    }
+
+    function getFormData() {
+        const operator = document.getElementById('operator').value;
+        const type = document.getElementById('educationType').value;
+        const dir = document.getElementById('direction').value;
+        const amount = contractPrices[type]?.[dir] || 0;
+        const course = document.getElementById('course').value;
+
+        return {
+            operator,
+            name: document.getElementById('name').value,
+            jshshir: document.getElementById('jshshir').value,
+            birthdate: document.getElementById('birthdate').value,
+            educationType: type,
+            direction: dir,
+            address: document.getElementById('address').value,
+            passport: document.getElementById('passport').value,
+            phone: document.getElementById('phone').value,
+            contractAmount: amount,
+            course
+        };
+    }
+
+    async function startPDFGeneration() {
+        const data = getFormData();
+        const statusEl = document.getElementById('status-msg');
+        const popup = window.open('', '_blank');
+        popup.document.write('<p style="font-family: sans-serif; color: green;">PDF fayli tayyorlanmoqda, iltimos kuting...</p>');
+
+        try {
+            const res = await fetch('https://shartnomaoriental2-production.up.railway.app/api/generate-pdf', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await res.json();
+
+            if (res.ok && result.downloadUrl) {
+                popup.location.href = result.downloadUrl;
+                statusEl.textContent = 'Shartnoma tayyorlandi va yuklab olinmoqda.';
+            } else {
+                popup.document.body.innerHTML = `<p style="color:red;">Xatolik: ${result.error || 'PDF yaratib bo‘lmadi.'}</p>`;
+            }
+        } catch (err) {
+            console.error(err);
+            popup.document.body.innerHTML = `<p style="color:red;">Tarmoq xatosi yoki server ishlamayapti.</p>`;
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        populateDirections();
+        document.getElementById('educationType').addEventListener('change', populateDirections);
+        document.getElementById('direction').addEventListener('change', updateAmountDisplay);
+    });
+</script>
+</body>
+
+</html>
