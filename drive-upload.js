@@ -6,14 +6,12 @@ const { PDFDocument } = require('pdf-lib');
 
 const auth = new google.auth.GoogleAuth({
   credentials: process.env.GOOGLE_CREDENTIALS_JSON
-    ? JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON)
-    : require('./google-credentials.json'),
   scopes: ['https://www.googleapis.com/auth/drive']
 });
 
 const drive = google.drive({ version: 'v3', auth });
 
-const folderId = '1fdUby-KZFDCK2H36BsmyF_GmGwIBsdyg'; // вставь свой ID папки
+const folderId = '1m3UTy1AeE1SmJB9SrYK69_VkCVKRXCp_'; // вставь свой ID папки
 
 async function uploadToDriveAndAddQR(localPath, contractNumber) {
   try {
