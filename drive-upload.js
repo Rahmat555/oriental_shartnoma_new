@@ -11,14 +11,19 @@ const auth = new google.auth.GoogleAuth({
 
 const drive = google.drive({ version: 'v3', auth });
 
-const folderId = '1m3UTy1AeE1SmJB9SrYK69_VkCVKRXCp_'; // вставь свой ID папки
+const folderId = '1m3UTy1AeE1SmJB9SrYK69_VkCVKRXCp_'; // ID папки в Google Drive
 
 async function uploadToDriveAndAddQR(localPath, contractNumber) {
   try {
+    // Проверка наличия файла перед чтением
+    if (!fs.existsSync(localPath)) {
+      throw new Error(`File not found: ${localPath}`);
+    }
+
     const pdfBytes = fs.readFileSync(localPath);
     const pdfDoc = await PDFDocument.load(pdfBytes);
 
-    // временно заливаем оригинальный PDF
+    // Сначала заливаем PDF без QR
     const driveRes = await drive.files.create({
       requestBody: {
         name: `shartnoma_${contractNumber}.pdf`,
@@ -33,7 +38,7 @@ async function uploadToDriveAndAddQR(localPath, contractNumber) {
 
     const fileId = driveRes.data.id;
 
-    // делаем файл публичным
+    // Делаем файл публичным
     await drive.permissions.create({
       fileId,
       requestBody: {
@@ -44,7 +49,7 @@ async function uploadToDriveAndAddQR(localPath, contractNumber) {
 
     const driveUrl = `https://drive.google.com/file/d/${fileId}/view`;
 
-    // вставка QR кода на последнюю страницу
+    // Генерация QR и добавление на последнюю страницу
     const qrDataUrl = await QRCode.toDataURL(driveUrl);
     const qrImageBytes = Buffer.from(qrDataUrl.split(',')[1], 'base64');
     const qrImage = await pdfDoc.embedPng(qrImageBytes);
@@ -61,7 +66,7 @@ async function uploadToDriveAndAddQR(localPath, contractNumber) {
     const updatedBytes = await pdfDoc.save();
     fs.writeFileSync(localPath, updatedBytes);
 
-    // перезаливаем файл с QR
+    // Перезаливаем PDF с QR-кодом
     await drive.files.update({
       fileId,
       media: {
@@ -72,7 +77,6 @@ async function uploadToDriveAndAddQR(localPath, contractNumber) {
 
     console.log('✅ QR yuklangan fayl: ', driveUrl);
     return driveUrl;
-
   } catch (err) {
     console.error('❌ Drive yoki QR xatolik:', err.message);
     return null;
