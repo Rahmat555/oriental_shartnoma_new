@@ -75,6 +75,7 @@ async function uploadToDriveAndAddQR(localPath, contractNumber) {
       }
     });
 
+    
     console.log('✅ QR yuklangan fayl: ', driveUrl);
     return driveUrl;
   } catch (err) {
