@@ -12,7 +12,7 @@ const auth = new google.auth.GoogleAuth({
 const drive = google.drive({ version: 'v3', auth });
 
 // Укажи корректный ID своей папки
-const folderId = '1APSVgcUikEsVkiIlxof3z1uR0B23VttE';
+const folderId = '1MHnkAisRMaLL1TRQGbAXtbWxuYLHaOrE';
 
 async function uploadToDriveAndAddQR(localPath, contractNumber) {
   try {
