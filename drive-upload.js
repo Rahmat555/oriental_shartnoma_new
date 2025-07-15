@@ -11,7 +11,7 @@ const auth = new google.auth.GoogleAuth({
 
 const drive = google.drive({ version: 'v3', auth });
 
-const folderId = '1APSVgcUikEsVkiIlxof3z1uR0B23VttE'; // ID папки в Google Drive
+const folderId = '0ACO5aHor5HV7Uk9PVA'; // ID папки в Google Drive
 
 async function uploadToDriveAndAddQR(localPath, contractNumber) {
   try {
