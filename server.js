@@ -18,7 +18,7 @@ app.use(express.static('public'));
 
 app.post('/api/generate-pdf', async (req, res) => {
   const {
-    operator, name, jshshir, birthdate,
+    name, jshshir, birthdate,
     educationType, direction, address,
     passport, phone, contractAmount, course
   } = req.body;
@@ -66,7 +66,6 @@ app.post('/api/generate-pdf', async (req, res) => {
     page2.drawText(jshshir, { x: 375, y: 180, size: 10, font });
     page2.drawText(phone, { x: 345, y: 170, size: 9, font });
     page2.drawText(`Sana: ${birthdate}`, { x: 321, y: 141, size: 10, font });
-    page2.drawText(operator, { x: 100, y: 111, size: 10, font });
 
     page1.drawText(`${Number(contractAmount).toLocaleString()} so‘m`, {
       x: 400,
@@ -104,7 +103,6 @@ app.post('/api/generate-pdf', async (req, res) => {
     // 6. Google Sheet fonda
     appendToGoogleSheet({
       contractNumber,
-      operator,
       name,
       jshshir,
       birthdate,
