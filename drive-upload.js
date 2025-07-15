@@ -11,20 +11,32 @@ const auth = new google.auth.GoogleAuth({
 
 const drive = google.drive({ version: 'v3', auth });
 
-const folderId = '1APSVgcUikEsVkiIlxof3z1uR0B23VttE'; // ID папки в Google Drive
+// Укажи корректный ID своей папки
+const folderId = '1APSVgcUikEsVkiIlxof3z1uR0B23VttE';
 
 async function uploadToDriveAndAddQR(localPath, contractNumber) {
   try {
-    // Проверка наличия файла перед чтением
+    // Проверка файла
     if (!fs.existsSync(localPath)) {
-      throw new Error(`File not found: ${localPath}`);
+      throw new Error(`❌ PDF fayl topilmadi: ${localPath}`);
     }
 
+    // Проверка доступа к папке
+    try {
+      await drive.files.get({
+        fileId: folderId,
+        fields: 'id, name'
+      });
+    } catch (folderErr) {
+      throw new Error(`❌ Google Drive папка topilmadi yoki ruxsat yo'q. Folder ID: ${folderId}`);
+    }
+
+    // Чтение PDF и подготовка
     const pdfBytes = fs.readFileSync(localPath);
     const pdfDoc = await PDFDocument.load(pdfBytes);
 
-    // Генерация пустого файла в Drive перед вставкой QR
-    const driveRes = await drive.files.create({
+    // Временная загрузка оригинального файла
+    const uploadRes = await drive.files.create({
       requestBody: {
         name: `shartnoma_${contractNumber}.pdf`,
         mimeType: 'application/pdf',
@@ -36,25 +48,26 @@ async function uploadToDriveAndAddQR(localPath, contractNumber) {
       }
     });
 
-    const fileId = driveRes.data.id;
+    const fileId = uploadRes.data.id;
 
-    // Делаем файл публичным
+    // Публикация
     await drive.permissions.create({
       fileId,
       requestBody: {
-        role: 'reader',
-        type: 'anyone'
+        type: 'anyone',
+        role: 'reader'
       }
     });
 
     const driveUrl = `https://drive.google.com/file/d/${fileId}/view`;
 
-    // Генерация QR и добавление на последнюю страницу
+    // Генерация QR-кода
     const qrDataUrl = await QRCode.toDataURL(driveUrl);
     const qrImageBytes = Buffer.from(qrDataUrl.split(',')[1], 'base64');
     const qrImage = await pdfDoc.embedPng(qrImageBytes);
     const qrDims = qrImage.scale(0.5);
 
+    // Вставка QR на последнюю страницу
     const lastPage = pdfDoc.getPages().slice(-1)[0];
     lastPage.drawImage(qrImage, {
       x: 410,
@@ -63,10 +76,10 @@ async function uploadToDriveAndAddQR(localPath, contractNumber) {
       height: qrDims.height
     });
 
-    const updatedBytes = await pdfDoc.save();
-    fs.writeFileSync(localPath, updatedBytes);
+    const updatedPdfBytes = await pdfDoc.save();
+    fs.writeFileSync(localPath, updatedPdfBytes);
 
-    // Перезаливаем PDF с QR-кодом
+    // Перезапись файла
     await drive.files.update({
       fileId,
       media: {
@@ -75,9 +88,9 @@ async function uploadToDriveAndAddQR(localPath, contractNumber) {
       }
     });
 
-    
-    console.log('✅ QR yuklangan fayl: ', driveUrl);
+    console.log('✅ QR bilan yuklandi:', driveUrl);
     return driveUrl;
+
   } catch (err) {
     console.error('❌ Drive yoki QR xatolik:', err.message);
     return null;
