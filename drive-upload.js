@@ -22,6 +22,12 @@ async function uploadToDriveAndAddQR(localPath, contractNumber) {
 
     const pdfBytes = fs.readFileSync(localPath);
     const pdfDoc = await PDFDocument.load(pdfBytes);
+    // ПРОВЕРКА: Может ли сервисный аккаунт видеть папку
+    const folderMeta = await drive.files.get({
+      fileId: folderId,
+      fields: 'id, name'
+    });
+    console.log('✅ Папка найдена:', folderMeta.data.name);
 
     // Генерация пустого файла в Drive перед вставкой QR
     const driveRes = await drive.files.create({
