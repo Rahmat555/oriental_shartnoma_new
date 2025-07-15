@@ -69,13 +69,6 @@
 <body>
     <div class="container">
         <h2>Talaba kontrakti yaratish</h2>
-        <div class="form-group">
-            <label for="operator">Operator</label>
-            <select id="operator">
-                <option value="operator_1">Operator 1</option>
-                <option value="operator_2">Operator 2</option>
-            </select>
-        </div>
         <div class="form-group"><label>Ism Familiya Sharif</label><input id="name" /></div>
         <div class="form-group"><label>JSHSHIR</label><input id="jshshir" /></div>
         <div class="form-group"><label>Sana</label><input id="birthdate" type="date" /></div>
@@ -217,14 +210,12 @@
     }
 
     function getFormData() {
-        const operator = document.getElementById('operator').value;
         const type = document.getElementById('educationType').value;
         const dir = document.getElementById('direction').value;
         const amount = contractPrices[type]?.[dir] || 0;
         const course = document.getElementById('course').value;
 
         return {
-            operator,
             name: document.getElementById('name').value,
             jshshir: document.getElementById('jshshir').value,
             birthdate: document.getElementById('birthdate').value,
